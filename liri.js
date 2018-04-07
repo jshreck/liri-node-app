@@ -7,17 +7,27 @@ var keys = require("./keys.js");
 
 var spotify = new Spotify(keys.spotify);
 var client = new Twitter(keys.twitter);
-
+var omdbKey = keys.omdb.key;
 
 var command = process.argv[2];
-//for details grab anything after the command and combine it into 1 string...18 lvl 2
 var details = process.argv.slice(3).join(" ");
 
 console.log("command: " + command + " details: " + details);
 
-
 // * `my-tweets`
 // This will show your last 20 tweets and when they were created at in your terminal/bash window.
+if (command === "my-tweets") {
+
+     var params = {screen_name: "LIRI_J", count: 2};
+
+     client.get('statuses/user_timeline/', params, function(error, tweets, response) {
+         if (!error) {
+         for (var key in tweets) {
+            console.log(tweets[key].text);
+          }
+         }
+     });
+ }
 
 // * `spotify-this-song`
 // This will show the following information about the song in your terminal/bash window
@@ -25,26 +35,22 @@ console.log("command: " + command + " details: " + details);
 // The song's name
 // A preview link of the song from Spotify
 // The album that the song is from
-
 if (command === "spotify-this-song") {
     spotify
     .search({ type: 'track', query: details, limit: 1})
     .then(function(response) {
-   
+   var info = response.tracks.items[0];
     //   console.log(response.tracks.items);
             console.log 
-            (`Artist(s): ${response.tracks.items[0].album.artists[0].name}, 
-            Song Name: ${response.tracks.items[0].name}, 
-            Album: ${response.tracks.items[0].album.name}, 
-            Preview: ${response.tracks.items[0].preview_url}`);
+            (`Artist(s): ${info.album.artists[0].name}, 
+            Song Name: ${info.name}, 
+            Album: ${info.album.name}, 
+            Preview: ${info.preview_url}`);
     })
     .catch(function(err) {
       console.log(err);
     });
 }
-
-
-
 // If no song is provided then your program will default to "The Sign" by Ace of Base.
 
 // * `movie-this`
