@@ -1,5 +1,6 @@
+//Setup
 require("dotenv").config();
-
+var fs = require("fs");
 var request = require("request");
 var Spotify = require('node-spotify-api');
 var Twitter = require('twitter');
@@ -11,51 +12,79 @@ var omdbKey = keys.omdb.key;
 
 var command = process.argv[2];
 var details = process.argv.slice(3).join(" ");
+log 
+console.log("command: " + command + " details: ");
 
-console.log("command: " + command + " details: " + details);
+//log the command/details
+fs.appendFile("log.txt", `${command} "${details}" ,`, function(err) {
 
-// * `my-tweets`
-// This will show your last 20 tweets and when they were created at in your terminal/bash window.
-if (command === "my-tweets") {
+    if (err) {
+      console.log(err);
+    }
+  
+    else {
+      console.log("Content Added!");
+    }
+  });
 
-     var params = {screen_name: "LIRI_J", count: 2};
+//Calling the determine function and passing it the command
+determine(command);
 
-     client.get('statuses/user_timeline/', params, function(error, tweets, response) {
-         if (!error) {
-         for (var key in tweets) {
-            console.log(tweets[key].text);
-          }
-         }
-     });
- }
+//Based on the command, will call the appropriate function
+function determine(command) {
+    if (command === "my-tweets") {
+        getTweets();
+    }
+    else if (command === "spotify-this-song") {
+        spotifySong();
+    }
+    else if (command === "movie-this") {
+        getMovie();
+    }
+    else if (command === "do-what-it-says") {
+        doIt();
+    }
+}
 
-// * `spotify-this-song`
-// This will show the following information about the song in your terminal/bash window
-// Artist(s)
-// The song's name
-// A preview link of the song from Spotify
-// The album that the song is from
-if (command === "spotify-this-song") {
+
+//gets most recent 20 tweets
+function getTweets() {
+    var params = { screen_name: "LIRI_J", count: 20 };
+
+    client.get('statuses/user_timeline/', params, function (error, tweets, response) {
+        if (!error) {
+            for (var key in tweets) {
+                console.log(tweets[key].text);
+            }
+        }
+    });
+}
+
+//Gets song information
+function spotifySong() {
+    if (!details) {
+        details = "The Sign Ace of Base";
+    }
     spotify
-    .search({ type: 'track', query: details, limit: 1})
-    .then(function(response) {
-   var info = response.tracks.items[0];
-    //   console.log(response.tracks.items);
-            console.log 
-            (`Artist(s): ${info.album.artists[0].name}, 
+        .search({ type: 'track', query: details, limit: 1 })
+        .then(function (response) {
+            var info = response.tracks.items[0];
+            console.log(`
+            Artist(s): ${info.album.artists[0].name}, 
             Song Name: ${info.name}, 
             Album: ${info.album.name}, 
             Preview: ${info.preview_url}`);
-    })
-    .catch(function(err) {
-      console.log(err);
-    });
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
 }
-// If no song is provided then your program will default to "The Sign" by Ace of Base.
 
-// * `movie-this`
-// This will output the following information to your terminal/bash window:
-if (command === "movie-this") {
+//Gets movie information
+function getMovie() {
+    if (!details) {
+        details = "Mr.Nobody";
+    }
     request(`http://www.omdbapi.com/?t=${details}&y=&plot=short&apikey=${omdbKey}`, function (error, response, body) {
 
         // If the request is successful (i.e. if the response status code is 200)
@@ -74,14 +103,25 @@ if (command === "movie-this") {
         }
     });
 }
-// If the user doesn't type a movie in, the program will output data for the movie 'Mr. Nobody.'
 
-// * `do-what-it-says`
-// sing the fs Node package, LIRI will take the text inside of random.txt and then use it to call one of LIRI's commands.
+//Reads a file and does what it says, passes a new command back into the "determine" function
+function doIt() {
+    fs.readFile("random.txt", "utf8", function (error, data) {
+
+        if (error) {
+            return console.log(error);
+        }
+
+        var dataArr = data.split(",");
+        console.log(dataArr);
+
+        command = dataArr[0];
+        details = dataArr[1];
+        determine(command);
+    });
+}
 
 
-// It should run spotify-this-song for "I Want it That Way," as follows the text in random.txt.
-// Feel free to change the text in that document to test out the feature for other commands.
 
 
 
