@@ -12,20 +12,16 @@ var omdbKey = keys.omdb.key;
 
 var command = process.argv[2];
 var details = process.argv.slice(3).join(" ");
-log 
-console.log("command: " + command + " details: ");
 
-//log the command/details
-fs.appendFile("log.txt", `${command} "${details}" ,`, function(err) {
-
-    if (err) {
-      console.log(err);
+// log the command/details
+fs.appendFile("log.txt", ` ${command} "${details}" ,`, function (error) {
+    if (!error) {
+        console.log("Added request to log");
     }
-  
     else {
-      console.log("Content Added!");
+        console.log(error);
     }
-  });
+});
 
 //Calling the determine function and passing it the command
 determine(command);
@@ -57,7 +53,11 @@ function getTweets() {
                 console.log(tweets[key].text);
             }
         }
+        else {
+            console.log(error);
+        }
     });
+
 }
 
 //Gets song information
@@ -86,8 +86,6 @@ function getMovie() {
         details = "Mr.Nobody";
     }
     request(`http://www.omdbapi.com/?t=${details}&y=&plot=short&apikey=${omdbKey}`, function (error, response, body) {
-
-        // If the request is successful (i.e. if the response status code is 200)
         if (!error && response.statusCode === 200) {
             var movie = JSON.parse(body);
 
@@ -101,13 +99,16 @@ function getMovie() {
             console.log("Plot: " + movie.Plot);
             console.log("Actors: " + movie.Actors);
         }
+        else {
+            console.log(error);
+        }
     });
 }
 
 //Reads a file and does what it says, passes a new command back into the "determine" function
 function doIt() {
     fs.readFile("random.txt", "utf8", function (error, data) {
-
+       
         if (error) {
             return console.log(error);
         }
