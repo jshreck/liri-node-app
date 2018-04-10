@@ -2,8 +2,8 @@
 
 Possible Commands:
 my-tweets : will give you your last 20 tweets\
-spotify-this-song <song name> : will give info about the song and a link to a preview of it\
-movie-this <movie name> : will give info about the movie\
+spotify-this-song <\song name> : will give info about the song and a link to a preview of it\
+movie-this <\movie name> : will give info about the movie\
 do-what-it-says : will read the file random.txt and do what it says
   
  \
